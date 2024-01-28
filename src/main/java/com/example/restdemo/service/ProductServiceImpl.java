@@ -8,6 +8,8 @@ import com.example.restdemo.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+
 @Service
 public class ProductServiceImpl implements ProductService{
 
@@ -36,11 +38,25 @@ public class ProductServiceImpl implements ProductService{
         productRepository.deleteById(id);
 
     }
-
     @Override
     public ProductDto addProduct(ProductDto product) {
        Product productEntity = productMapper.toEntity(product);
        Product save = productRepository.save(productEntity);
        return productMapper.toDTO(save);
+    }
+    @Override
+    public ProductDto updateProduct(long id, ProductDto updatedProduct) {
+        Optional<Product> optionalProduct = productRepository.findById(id);
+
+        if (optionalProduct.isPresent()) {
+            Product existingProduct = optionalProduct.get();
+            existingProduct.setName(updatedProduct.getName());
+            existingProduct.setPrice(updatedProduct.getPrice());
+
+            return productMapper.toDTO(productRepository.save(existingProduct));
+        } else {
+            System.out.println("Product not found");
+            return null;
+        }
     }
 }
